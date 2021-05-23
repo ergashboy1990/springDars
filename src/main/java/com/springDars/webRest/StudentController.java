@@ -11,4 +11,8 @@ public class StudentController {
     public String hello(){
         return "Salom";
     }
+    @GetMapping("/talaba")
+    public String talaba(){
+        return "talabalar";
+    }
 }
