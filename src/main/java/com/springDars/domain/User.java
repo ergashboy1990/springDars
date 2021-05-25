@@ -20,7 +20,7 @@ public class User implements Serializable {
             joinColumns = {@JoinColumn(name = "user_id",referencedColumnName = "id")},
             inverseJoinColumns={@JoinColumn(name = "role_name",referencedColumnName = "name")}
     )
-    private Set<Role> role= new HashSet<>();
+    private Set<Role> roles= new HashSet<>();
 
     public long getId() {
         return id;
@@ -46,12 +46,12 @@ public class User implements Serializable {
         this.password = password;
     }
 
-    public Set<Role> getRole() {
-        return role;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void setRole(Set<Role> role) {
-        this.role = role;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
 
