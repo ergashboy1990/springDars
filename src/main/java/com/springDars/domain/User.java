@@ -1,5 +1,7 @@
 package com.springDars.domain;
 
+import com.springDars.domain.enurmation.Status;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ public class User implements Serializable {
 
     private String userName;
     private String password;
+    private Status status;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -24,6 +27,14 @@ public class User implements Serializable {
 
     public long getId() {
         return id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public void setId(long id) {
