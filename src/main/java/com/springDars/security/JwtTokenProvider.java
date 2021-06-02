@@ -1,5 +1,4 @@
 package com.springDars.security;
-
 import com.springDars.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -7,17 +6,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpRequest;
-import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Set;
-
 @Component
 public class JwtTokenProvider {
 
@@ -26,6 +25,11 @@ public class JwtTokenProvider {
 
     @Value("${jwt.token.validity}")
     private long validityMilliSecond;
+    private final UserDetailsService userDetailsService;
+
+    public JwtTokenProvider(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -52,15 +56,13 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    private boolean validateToken(String token) {
+    boolean validateToken(String token) {
         Jws<Claims> claimsJws=Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
         if (claimsJws.getBody().getExpiration().before(new Date())){
             return false;
         }
         return true;
-
     }
-
 
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -68,5 +70,14 @@ public class JwtTokenProvider {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    public Authentication getAuthentication(String token) {
+        UserDetails userDetails= this.userDetailsService.loadUserByUsername(getUser(token));
+    return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
+    }
+
+    private String getUser(String token) {
+         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 }
